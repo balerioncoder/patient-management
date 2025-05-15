@@ -1,0 +1,48 @@
+server:
+  port: 4004 # Gateway listens on port 4004
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        ## http://locahost:4004/auth/login
+        ## API GATEWAY -> http://auth-service:4005/login
+        - id: auth-service-route
+          uri: http://host.docker.internal:4005
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        ### REST CLIENT -> http://localhost:4004/api/patients
+        ### API GATEWAY -> http:://patient-service:4000/patients
+        ### PATIENT SERVICE (SPRING BOOT APP) -> /patient -> Patients Arrays
+        - id: patient-service-route
+          uri: http://host.docker.internal:4000
+          predicates:
+            - Path=/api/patients/**
+          filters:
+            - StripPrefix=1
+            - JwtValidation
+
+        ## REST-CLIENT ->
+        ## API-GATEWAY -> http://patient-service/v3/api-docs
+        - id: api-docs-patient-route
+          uri: http://host.docker.internal:4000
+          predicates:
+            - Path=/api-docs/patients
+          filters:
+            - RewritePath=/api-docs/patients,/v3/api-docs
+
+        - id: api-docs-auth-route
+          uri: http://host.docker.internal:4005
+          predicates:
+            - Path=/api-docs/auth
+          filters:
+            - RewritePath=/api-docs/auth,/v3/api-docs
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext: DEBUG
+    reactor.netty.http.client: DEBUG

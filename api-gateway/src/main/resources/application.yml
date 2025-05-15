@@ -1,5 +1,5 @@
 server:
-  port: 4004 #Gateway listens on port 4004
+  port: 4004 # Gateway listens on port 4004
 
 spring:
   cloud:
@@ -26,9 +26,6 @@ spring:
             - JwtValidation
 
          ## REST-CLIENT ->
-
-
-        
          ## API-GATEWAY -> http://patient-service/v3/api-docs
         - id: api-docs-patient-route
           uri: http://patient-service:4000
@@ -43,4 +40,3 @@ spring:
             - Path=/api-docs/auth
           filters:
             - RewritePath=/api-docs/auth,/v3/api-docs
-
